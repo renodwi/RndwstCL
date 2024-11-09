@@ -3,7 +3,7 @@
 #endif
 #define _RndwstCL_included
 
-#define MAX_RNDWSTCL_FUNCTION 31
+#define MAX_RNDWSTCL_FUNCTION 32
 #define RNDWSTCL_DIALOG 3923
 #define ColorSelector:%0(%1) \
 	forward RndwstCL_%0(%1); public RndwstCL_%0(%1)
@@ -101,7 +101,7 @@ new eRndwstCL_ColorList[] = {
     0x000000FF
 };
 
-new RndwstCL_function[MAX_PLAYERS][MAX_RNDWSTCL_FUNCTION];
+new RndwstCL_function[MAX_PLAYERS][32 char];
 new bool:RndwstCL_playerusing[MAX_PLAYERS];
 
 public OnPlayerConnect(playerid)
@@ -125,31 +125,21 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
         }
 
         RndwstCL_playerusing[playerid] = false;
-        CallLocalFunction(RndwstCL_function[playerid], "ddd", playerid, response, eRndwstCL_ColorList[listitem]);
+
+        new
+			string[40];
+
+		strcat(string, "RndwstCL_");
+		strcat(string, RndwstCL_function[playerid]);
+        CallLocalFunction(string, "ddd", playerid, response, eRndwstCL_ColorList[listitem]);
+        return 1;
     }
     return CallLocalFunction("RndwstCL_OnDialogResponse", "dddds", playerid, dialogid, response, listitem, inputtext);
 }
 
 stock RndwstCL_Open(playerid, const function[], const caption[], const button1[], const button2[])
 {
-    new bool:status = true;
-
-    new function_fix[MAX_RNDWSTCL_FUNCTION];
-    format(function_fix, MAX_RNDWSTCL_FUNCTION, "RndwstCL_%s", function);
-    strpack(RndwstCL_function[playerid], function_fix, 32 char);
-
-    new panjang_fungsi = strlen(RndwstCL_function[playerid]);
-    if(panjang_fungsi > MAX_RNDWSTCL_FUNCTION)
-        printf("[Rndwst - Color Selector] The Colour Picker with the '%s' function cannot have a size greater than 31 characters!", RndwstCL_function[playerid]), status = false;
-
-    if(RndwstCL_isstringcontainspace(function))
-        printf("[Rndwst - Color Selector] The Colour Picker with the '%s' function cannot have a space in it!", RndwstCL_function[playerid]), status = false;
-
-    if(status == false)
-    {
-        SendClientMessage(playerid, 0xFF0000FF, "[Rndwst - Color Selector] An error occurred, please check the SA:MP terminal.");
-        return 1;
-    }
+    format(RndwstCL_function[playerid], 32 char, function);
 
     new message[4096];
     for(new i = 0; i < sizeof eRndwstCL_ColorList; i++)
